@@ -20,16 +20,16 @@ plt.rcParams['text.latex.preamble'] = r'\usepackage[T1]{polski}'
 # beta - natularne zgony
 
 P_0 = 1000
-N_0 = 1
+N_0 = 3
 W_0 = 0
 M_0 = 0
 
-a = 0.001
-b = 1/10.0
+a = 0.0005
+b = 1/15.0
 z = 0.01
 alpha = 0.0005
 beta = 0.0001
-gamma = 0.05
+#gamma = 0.05
 
 def uklad_rownan(y, t, a, b, z, alpha, beta):
     P, N, W, M = y
@@ -37,14 +37,6 @@ def uklad_rownan(y, t, a, b, z, alpha, beta):
     dN_dt = a*N*P - b*N - z*N
     dW_dt = b*N
     dM_dt = z*N + beta*(P + N + W)
-    return dP_dt, dN_dt, dW_dt, dM_dt
-
-def uklad_rownan_szczepienia(y, t, a, b, z, alpha, beta, gamma):
-    P, N, W, M = y
-    dP_dt = -a * N * P + alpha * (P + N + W) - gamma * P  # - 0.05*(P+N+W)
-    dN_dt = a * N * P - b * N - z * N
-    dW_dt = b * N + gamma * P
-    dM_dt = z * N + beta * (P + N + W)
     return dP_dt, dN_dt, dW_dt, dM_dt
 
 def uklad_rownan_szczepienia_zalezne_od_czasu(y, t, a, b, z, alpha, beta):
@@ -56,8 +48,8 @@ def uklad_rownan_szczepienia_zalezne_od_czasu(y, t, a, b, z, alpha, beta):
     return dP_dt, dN_dt, dW_dt, dM_dt
 
 def f_gamma(t):
-    if t > 20 and t < 60:
-        return 0.005
+    if t > 5 and t < 60:
+        return 0.05
     else:
         return 0
 
@@ -78,13 +70,13 @@ ax.set_ylim([0, 1250])
 ax.set_xlabel("Czas [dni]")
 ax.set_ylabel("Liczba osób")
 ax.set_title("Bez szczepienia")
-ax.text(60, 600, 'a={0}\nb={1} \nz={2} \n alpha={3} \n beta={4}'.format(a, b, z, alpha, beta),
-        bbox={'facecolor':'red', 'alpha':0.5, 'pad':10})
-plt.legend(loc="upper center", prop={'size':20})
+#ax.text(60, 600, 'a={0}\nb={1} \nz={2} \n alpha={3} \n beta={4}'.format(a, b, z, alpha, beta),
+#        bbox={'facecolor':'red', 'alpha':0.5, 'pad':10})
+plt.legend(loc="upper center")
 
 czas_w_dniach = np.linspace(0, 90, 1000)
 y_0 = P_0, N_0, W_0, M_0
-rozwiazanie_s = odeint(uklad_rownan_szczepienia, y_0, czas_w_dniach, args=(a, b, z, alpha, beta, gamma))
+rozwiazanie_s = odeint(uklad_rownan_szczepienia_zalezne_od_czasu, y_0, czas_w_dniach, args=(a, b, z, alpha, beta))
 P_s, N_s, W_s, M_s = rozwiazanie_s.T
 
 ax2 = fig.add_subplot(122, axis_bgcolor='#dddddd', axisbelow=True)
@@ -96,11 +88,10 @@ ax2.set_ylim([0, 1250])
 ax2.set_xlabel("Czas [dni]")
 ax2.set_ylabel("Liczba osób")
 ax2.set_title("Szczepienie")
-ax2.text(60, 600, 'a={0}\nb={1} \nz={2} \n alpha={3} \n beta={4}\n gamma={5}'.format(a, b, z, alpha, beta, gamma),
-        bbox={'facecolor':'red', 'alpha':0.5, 'pad':10})
-plt.legend(loc="upper center", prop={'size':20})
+# ax2.text(60, 600, 'a={0} \n b={1} \nz={2} \n alpha={3} \n beta={4}\n'.format(a, b, z, alpha, beta),
+#         bbox={'facecolor':'red', 'alpha':0.5, 'pad':10})
+plt.legend(loc="upper center")
 
 
 
 plt.show()
-
